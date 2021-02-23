@@ -25,6 +25,58 @@ class AccountController extends Controller {
         $ipaddress = $ssh->exec("TERM=linux ip a s eth0 | grep -m1 '^[[:blank:]]*inet ' | mawk '{print $2}' | sed 's|/.*$||'");
         $hostName = $ssh->exec("TERM=linux sudo cat /etc/hostname");
         $soundCard = $ssh->exec("TERM=linux sed -n '/^CONFIG_SOUNDCARD=/{s/^[^=]*=//p;q}' /boot/dietpi.txt");
+
+	$amixerCtrlList = (array) null;
+	if(trim($soundCard) == "allo-boss2-dac-audio" ) {
+		$list = $ssh->exec("TERM=linux sudo amixer -c Boss2 | grep \"Simple mixer control\"  | cut -f1 -d, | cut -f2 -d\' ");
+		$ctrlList = explode("\n", $list);
+		$amixerCtrlList = array_filter($ctrlList);
+	}
+
+	$Master = '';
+	$Digital = '';
+	$pcm_de_emphasis_filter= '';
+	$pcm_filter_speed = '';
+	$pcm_high_pass_filter= '';
+	$pcm_nonoversample= '';
+	$pcm_phase_compensation= '';
+	$hv_enable= '';
+
+	if(trim($soundCard) == "allo-boss2-dac-audio" ) {
+		if (in_array("Master", $amixerCtrlList)) {
+			//error_log(" can set master is thr ",0);
+			$Master = $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'Master' | grep 'Front Left:' | cut -f1  -d% | cut -f2 -d[");
+		}
+		if (in_array("Digital", $amixerCtrlList)) {
+			//error_log(" can set digital is thr ",0);
+			$Digital = $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'Digital' | grep 'Front Left:' | cut -f1  -d% | cut -f2 -d[");
+		}
+		if (in_array("PCM De-emphasis Filter", $amixerCtrlList)) {
+			//error_log(" can set PCM De-emphasis Filter is thr ",0);
+			$pcm_de_emphasis_filter= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM De-emphasis Filter' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+		if (in_array("PCM Filter Speed", $amixerCtrlList)) {
+			//error_log(" can set PCM Filter Speed is thr ",0);
+			$pcm_filter_speed = $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM Filter Speed' | grep 'Item0:' | cut -f2 -d:");
+		}
+		if (in_array("PCM High-pass Filter", $amixerCtrlList)) {
+			//error_log(" can set PCM High-pass Filter is thr ",0);
+			$pcm_high_pass_filter= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM High-pass Filter' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+		if (in_array("PCM Nonoversample Emulate", $amixerCtrlList)) {
+			//error_log(" can set PCM Nonoversample Emulate is thr ",0);
+			$pcm_nonoversample= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM Nonoversample Emulate' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+		if (in_array("PCM Phase Compensation", $amixerCtrlList)) {
+			//error_log(" can set PCM Phase Compensation is thr ",0);
+			$pcm_phase_compensation= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM Phase Compensation' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+		if (in_array("HV_Enable", $amixerCtrlList)) {
+			//error_log(" can set HV_Enable is thr ",0);
+			$hv_enable= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'HV_Enable' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+	}
+
         $mpdstatus = $ssh->exec("TERM=linux sudo systemctl is-active mpd | grep -cim1 '^active'");
         if ($mpdstatus == 0) {
 		$mpd_status = 'Inactive';
@@ -107,15 +159,10 @@ class AccountController extends Controller {
 			$bitDepth_squeezelite = 16;
 		}
 
-        return view('frontend.dashboard')->with(['ipAddress' => $ipaddress, 'current_date' => $current_date,
-            'current_time' => $current_time, 'ipaddress' => $ipaddress, 'hostName' => $hostName,
-            'soundCard' => $soundCard,'mpd_status'=>$mpd_status, 'outputFrequencies'=>$outputFrequencies,'bitDepth'=>$bitDepth,'roon_status'=>$roon_status,
-            'daemon_status' =>$daemon_status,'wifiStatus'=>$wifiStatus,'currentSSID'=>$currentSSID,
-            'currentPasskey'=>$currentPasskey,'shairPortStatus'=>$shairPortStatus,'cpu_temp' =>$cpu_temp,
-            'outputFrequencies_shair'=>$outputFrequencies_shair,'bitDepth_shair'=>$bitDepth_shair, 'mpdNativeOutput'=>$mpdNativeOutput, 'gmrenderStatus'=>$gmrenderStatus, 'netdataStatus'=>$netdataStatus,
-			'squeezeliteStatus'=>$squeezeliteStatus, 'bitDepth_squeezelite'=>$bitDepth_squeezelite
+
+        return view('frontend.dashboard')->with(['ipAddress' => $ipaddress, 'current_date' => $current_date, 'current_time' => $current_time, 'ipaddress' => $ipaddress, 'hostName' => $hostName, 'soundCard' => $soundCard, 'Master' => $Master, 'Digital' => $Digital, 'pcm_de_emphasis_filter' => $pcm_de_emphasis_filter, 'pcm_filter_speed' => $pcm_filter_speed, 'pcm_high_pass_filter' => $pcm_high_pass_filter, 'pcm_nonoversample' => $pcm_nonoversample, 'pcm_phase_compensation' => $pcm_phase_compensation, 'hv_enable' => $hv_enable, 'mpd_status'=>$mpd_status, 'outputFrequencies'=>$outputFrequencies,'bitDepth'=>$bitDepth,'roon_status'=>$roon_status, 'daemon_status' =>$daemon_status,'wifiStatus'=>$wifiStatus,'currentSSID'=>$currentSSID, 'currentPasskey'=>$currentPasskey,'shairPortStatus'=>$shairPortStatus,'cpu_temp' =>$cpu_temp, 'outputFrequencies_shair'=>$outputFrequencies_shair,'bitDepth_shair'=>$bitDepth_shair, 'mpdNativeOutput'=>$mpdNativeOutput, 'gmrenderStatus'=>$gmrenderStatus, 'netdataStatus'=>$netdataStatus, 'squeezeliteStatus'=>$squeezeliteStatus, 'bitDepth_squeezelite'=>$bitDepth_squeezelite
 			]);
-        ;
+        
     }
 
     public function ssh_login(Request $request) {

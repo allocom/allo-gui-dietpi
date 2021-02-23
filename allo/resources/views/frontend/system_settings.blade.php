@@ -384,6 +384,7 @@
 																$str8 = 'allo-piano-dac-plus-pcm512x-audio';
 																$str9 = 'usb-dac';
 																$str10 = 'none';
+																$str11 = 'allo-boss2-dac-audio';
 															}
 														?>
 														<div class="col-md-10 col-sm-12 col-xs-12 right-input">
@@ -401,6 +402,7 @@
 																	<option value = "rpi-bcm2835-3.5mm" <?php if($soundCard == $str2) { echo "selected"; } ?>>rpi-bcm2835-3.5mm</option>
 																	<option value = "rpi-bcm2835-hdmi" <?php if($soundCard == $str3) { echo "selected"; } ?>>rpi-bcm2835-hdmi</option>
 																	<option value = "allo-boss-dac-pcm512x-audio" <?php if($soundCard == $str4) { echo "selected"; } ?>>allo-boss-dac-pcm512x-audio</option>
+																	<option value = "allo-boss2-dac-audio" <?php if($soundCard == $str11) { echo "selected"; } ?>>allo-boss2-dac-audio</option>
 																	<option value = "allo-digione" <?php if($soundCard == $str5) { echo "selected"; } ?>>allo-digione</option>
 																	<option value = "allo-katana-dac-audio" <?php if($soundCard == $str6) { echo "selected"; } ?>>allo-katana-dac-audio</option>
 																	<option value = "allo-piano-dac-pcm512x-audio" <?php if($soundCard == $str7) { echo "selected"; } ?>>allo-piano-dac-pcm512x-audio</option>
@@ -470,7 +472,11 @@
 																				allo-boss-dac-pcm512x-audio = Allo BOSS and MINI BOSS DAC's
 																			</li>
 																		</ul>
-
+																		<ul>
+																			<li>
+																				allo-boss2-dac-audio = Allo BOSS2 DAC
+																			</li>
+																		</ul>
 																		<ul>
 																			<li>
 																				allo-digione = Allo DiGiOne
@@ -501,7 +507,321 @@
 														</div>
 													</div>
 												</div>
-											</div>
+												<div>
+<!-- // FOR Alsa Mixer --!>
+<div class="panel panel-default" <?php if($soundCard != 'allo-boss2-dac-audio' ) { ?> style="display: none;" <?php } ?>>
+														<div class="panel-heading" style="background-color: transparent;" role="tab" id="alsamixerctrl" >
+															<h4 class="panel-title" >
+																<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsealsamixerctrl" aria-expanded="true" aria-controls="collapsealsamixerctrl">
+																ALSA MIXER CONTROLS
+																</a>
+															</h4>
+														</div>
+														<div id="collapsealsamixerctrl" class="panel-collapse collapse" role="tabpanel" aria-labelledby="alsamixerctrl">
+															<div class="panel-body">
+
+																<!-- // Alsamixer controls --!>
+																<div class="col-md-12 col-sm-12 col-xs-12 edit-input-row padding-all-zero" <?php if(!(in_array("Master", $amixerCtrlList))) { ?> style="display: none;" <?php } ?>>
+																	<div class="col-md-4 col-sm-6 col-xs-12 left-label">
+																		<label>Master</label>
+																	</div>
+																	<div class="col-md-8 col-sm-6 col-xs-12 right-input" id = "fade3">
+																		<div class="col-md-10 col-sm-12 col-xs-12 right-input">
+																			<input class="range-example-input-2" id="master-range" type="text" min="0" max="100" value="{{$Master}}" name="points" step="1" />
+																			<input type = "hidden" id = "master_chng_val" val = "{{$Master}}" name = "master_chng_val">
+																		</div>
+																		<div class="col-md-2 col-sm-4 col-xs-12">
+																			<div class="naoTooltip-wrap">
+																				<span>
+																					<i class="fa fa-question-circle" style="font-size:24px;color:white">
+																					</i>
+																				</span>
+																				<div class="naoTooltip nt-bottom nt-small">
+																					<ul>
+																						<li>
+																							Alsamixer -  Master Playback Volume :
+																						</li>
+																					</ul>
+																					<p>
+																						Drag to change Master Control Volume 
+																					</p>
+																				</div>
+																			</div>
+																		</div>
+																	  </div>
+																   </div>
+																  <div class="col-md-12 col-sm-12 col-xs-12 edit-input-row padding-all-zero" <?php if(!(in_array("Digital", $amixerCtrlList))) { ?> style="display: none;" <?php } ?>>
+																	<div class="col-md-4 col-sm-6 col-xs-12 left-label">
+																		<label>Digital</label>
+																	</div>
+																	<div class="col-md-8 col-sm-6 col-xs-12 right-input" id = "fade3">
+																		<div class="col-md-10 col-sm-12 col-xs-12 right-input">
+																			<input class="range-example-input-2" id="digital-range" type="text" min="0" max="100" value="{{$Digital}}" name="points" step="1" />
+																			<input type = "hidden" id = "digital_chng_val" val = "{{$Digital}}" name = "digital_chng_val">
+																		</div>
+																		<div class="col-md-2 col-sm-4 col-xs-12">
+																			<div class="naoTooltip-wrap">
+																				<span>
+																					<i class="fa fa-question-circle" style="font-size:24px;color:white">
+																					</i>
+																				</span>
+																				<div class="naoTooltip nt-bottom nt-small">
+																					<ul>
+																						<li>
+																							Alsamixer -  Digital Playback Volume:
+																						</li>
+																					</ul>
+																					<p>
+																						Drag to change Digital Control Volume																					</p>
+																				</div>
+																			</div>
+																		</div>
+																	  </div>
+																   </div>
+																   <div class="col-md-12 col-sm-12 col-xs-12 edit-input-row padding-all-zero" <?php if(!(in_array("PCM De-emphasis Filter", $amixerCtrlList))) { ?> style="display: none;" <?php } ?>>
+																	<div class="col-md-4 col-sm-6 col-xs-12 left-label">
+																		<label>PCM De-emphasis Filter :</label>
+																	</div>
+																	<div class="col-md-6 col-sm-4 col-xs-12 right-input">
+																		<div class="switch">
+																			<label class="switch-light" onclick="">
+																				<input type="hidden" class="token" name="_token" value="{{ csrf_token() }}">
+																				<input type="hidden" id = "pcm_de_emphasis_val" name = "pcm_de_emphasis_val" value = "">
+																				<input type="checkbox" id = "pcm_de_emphasis" name = "pcm_de_emphasis" value = "">
+																				<span>
+																					<span id = "pcm_de_emphasis_enable" value ="">Enable</span>
+																					<span id = "pcm_de_emphasis_disable" value ="">Disable</span>
+																				</span>
+																				<a class="btn btn-primary"></a>
+																			</label>
+																		</div>
+																	</div>
+																	<div class="col-md-2 col-sm-2 col-xs-12">
+																		<div class="naoTooltip-wrap">
+																			<span>
+																				<i class="fa fa-question-circle" style="font-size:24px;color:white">
+																				</i>
+																			</span>
+																			<div class="naoTooltip nt-bottom nt-small">
+																				<p> Allows you to Enable or Disable the PCM De-emphasis Filter : </p>
+																				<hr>
+																				<ul> <li> Enable : </li> </ul>
+																				<p> This Control is allowed to Enable the PCM De-emphasis Filter.  
+																				</p>
+																				<hr>
+																				<ul> <li> Disable : </li> </ul>
+																				<p> This Control is allowed to Disable the PCM De-emphasis Filter.  
+																			</div>
+																		</div>
+																	  </div>
+														                       </div>
+																   <div class="col-md-12 col-sm-12 col-xs-12 edit-input-row padding-all-zero" <?php if(!(in_array("PCM Filter Speed", $amixerCtrlList))) { ?> style="display: none;" <?php } ?>>
+																	<div class="col-md-4 col-sm-6 col-xs-12 left-label">
+																		<label>PCM Filter Speed :</label>
+																	</div>
+																	<div class="col-md-6 col-sm-4 col-xs-12 right-input">
+																		<div class="switch">
+																			<label class="switch-light" onclick="">
+																				<input type="hidden" class="token" name="_token" value="{{ csrf_token() }}">
+																				<input type="hidden" id = "pcm_filter_speed_val" name = "pcm_filter_speed_val" value = "">
+																				<input type="checkbox" id = "pcm_filter_speed" name = "pcm_filter_speed" value = "">
+																				<span>
+																					<span id = "pcm_filter_speed_enable" value ="Fast">Fast</span>
+																					<span id = "pcm_filter_speed_disable" value ="slow">Slow</span>
+																				</span>
+																				<a class="btn btn-primary"></a>
+																			</label>
+																		</div>
+																	</div>
+																	<div class="col-md-2 col-sm-2 col-xs-12">
+																		<div class="naoTooltip-wrap">
+																			<span>
+																				<i class="fa fa-question-circle" style="font-size:24px;color:white">
+																				</i>
+																			</span>
+																			<div class="naoTooltip nt-bottom nt-small">
+																				<p> Allows you to set the PCM Filter Speed to Fast or Slow : </p>
+																				<hr>
+																				<ul> <li> Fast : </li> </ul>
+																				<p> This Control is allowed to Fast the PCM Filter Speed.   
+																				</p>
+																				<hr>
+																				<ul> <li> Slow : </li> </ul>
+																				<p> This Control is allowed to Slow the PCM Filter Speed.   </p>
+																			</div>
+																		</div>
+																	  </div>
+														                       </div>
+
+																   <div class="col-md-12 col-sm-12 col-xs-12 edit-input-row padding-all-zero" <?php if(!(in_array("PCM High-pass Filter", $amixerCtrlList))) { ?> style="display: none;" <?php } ?>>
+																	<div class="col-md-4 col-sm-6 col-xs-12 left-label">
+																		<label> PCM High-pass Filter :</label>
+																	</div>
+																	<div class="col-md-6 col-sm-4 col-xs-12 right-input">
+																		<div class="switch">
+																			<label class="switch-light" onclick="">
+																				<input type="hidden" class="token" name="_token" value="{{ csrf_token() }}">
+																				<input type="hidden" id = "pcm_high_pass_filter_val" name = "pcm_high_pass_filter_val" value = "">
+																				<input type="checkbox" id = "pcm_high_pass_filter" name = "pcm_high_pass_filter" value = "">
+																				<span>
+																					<span id = "pcm_high_pass_filter_enable" value ="">Enable</span>
+																					<span id = "pcm_high_pass_filter_disable" value ="">Disable</span>
+																				</span>
+																				<a class="btn btn-primary"></a>
+																			</label>
+																		</div>
+																	</div>
+																	<div class="col-md-2 col-sm-2 col-xs-12">
+																		<div class="naoTooltip-wrap">
+																			<span>
+																				<i class="fa fa-question-circle" style="font-size:24px;color:white">
+																				</i>
+																			</span>
+																			<div class="naoTooltip nt-bottom nt-small">
+																				<p> Allows you to Enable or Disable the PCM High-pass Filter : </p>
+																				<hr>
+																				<ul> <li> Enable : </li> </ul>
+																				<p> This Control is allowed to Enable the PCM High-Pass Filter.  </p>
+																				<hr>
+																				<ul> <li> Disable : </li> </ul>
+																				<p> This Control is allowed to Disable the PCM High-Pass Filter.  </p>
+																			</div>
+																		</div>
+																	  </div>
+														                       </div>
+
+																   <div class="col-md-12 col-sm-12 col-xs-12 edit-input-row padding-all-zero" <?php if(!(in_array("PCM Nonoversample Emulate", $amixerCtrlList))) { ?> style="display: none;" <?php } ?>>
+																	<div class="col-md-4 col-sm-6 col-xs-12 left-label">
+																		<label> PCM Nonoversample Emulate :</label>
+																	</div>
+																	<div class="col-md-6 col-sm-4 col-xs-12 right-input">
+																		<div class="switch">
+																			<label class="switch-light" onclick="">
+																				<input type="hidden" class="token" name="_token" value="{{ csrf_token() }}">
+																				<input type="hidden" id = "pcm_nonoversample_val" name = "pcm_nonoversample_val" value = "">
+																				<input type="checkbox" id = "pcm_nonoversample" name = "pcm_nonoversample" value = "">
+																				<span>
+																					<span id = "pcm_nonoversample_enbale" value ="">Enable</span>
+																					<span id = "pcm_nonoversample_disable" value ="">Disable</span>
+																				</span>
+																				<a class="btn btn-primary"></a>
+																			</label>
+																		</div>
+																	</div>
+																	<div class="col-md-2 col-sm-2 col-xs-12">
+																		<div class="naoTooltip-wrap">
+																			<span>
+																				<i class="fa fa-question-circle" style="font-size:24px;color:white">
+																				</i>
+																			</span>
+																			<div class="naoTooltip nt-bottom nt-small">
+																				<p> Allows you to Enable or Disable the PCM Nonoversample Emulate.  </p>
+																				<hr>
+																				<ul> <li> Enable : </li> </ul>
+																				<p> This Control is allowed to Enable the PCM Nonoversample Emulate.  </p>
+																				</p>
+																				<hr>
+																				<ul> <li> Disable : </li> </ul>
+																				<p> This Control is allowed to Disable the PCM Nonoversample Emulate.  </p>
+																			</div>
+																		</div>
+																	  </div>
+														                       </div>
+
+																   <div class="col-md-12 col-sm-12 col-xs-12 edit-input-row padding-all-zero" <?php if(!(in_array("PCM Phase Compensation", $amixerCtrlList))) { ?> style="display: none;" <?php } ?>>
+																	<div class="col-md-4 col-sm-6 col-xs-12 left-label">
+																		<label> PCM Phase Compensation :</label>
+																	</div>
+																	<div class="col-md-6 col-sm-4 col-xs-12 right-input">
+																		<div class="switch">
+																			<label class="switch-light" onclick="">
+																				<input type="hidden" class="token" name="_token" value="{{ csrf_token() }}">
+																				<input type="hidden" id = "pcm_phase_compensation_val" name = "pcm_phase_compensation_val" value = "">
+																				<input type="checkbox" id = "pcm_phase_compensation" name = "pcm_phase_compensation" value = "">
+																				<span>
+																					<span id = "pcm_phase_compensation_enable" value ="">Enable</span>
+																					<span id = "pcm_phase_compensation_disable" value ="">Disable</span>
+																				</span>
+																				<a class="btn btn-primary"></a>
+																			</label>
+																		</div>
+																	</div>
+																	<div class="col-md-2 col-sm-2 col-xs-12">
+																		<div class="naoTooltip-wrap">
+																			<span>
+																				<i class="fa fa-question-circle" style="font-size:24px;color:white">
+																				</i>
+																			</span>
+																			<div class="naoTooltip nt-bottom nt-small">
+																				<p> Allows you to Enable or Disable the PCM Phase Compensation.  </p>
+																				<hr>
+																				<ul> <li> Enable : </li> </ul>
+																				<p> This Control is allowed to Enable the PCM Phase Compensation.  </p>
+																				</p>
+																				<hr>
+																				<ul> <li> Disable : </li> </ul>
+																				<p> This Control is allowed to Disable the PCM Phase Compensation.  </p>
+																			</div>
+																		</div>
+																	  </div>
+														                       </div>
+
+																   <div class="col-md-12 col-sm-12 col-xs-12 edit-input-row padding-all-zero" <?php if(!(in_array("HV_Enable", $amixerCtrlList))) { ?> style="display: none;" <?php } ?>>
+																	<div class="col-md-4 col-sm-6 col-xs-12 left-label">
+																		<label> HV_Enable :</label>
+																	</div>
+																	<div class="col-md-6 col-sm-4 col-xs-12 right-input">
+																		<div class="switch">
+																			<label class="switch-light" onclick="">
+																				<input type="hidden" class="token" name="_token" value="{{ csrf_token() }}">
+																				<input type="hidden" id = "hv_enable_val" name = "hv_enable_val" value = "">
+																				<input type="checkbox" id = "hv_enable" name = "hv_enable" value = "">
+																				<span>
+																					<span id = "hv_enable_enable" value ="">Enable</span>
+																					<span id = "hv_enable_disable" value ="">Disable</span>
+																				</span>
+																				<a class="btn btn-primary"></a>
+																			</label>
+																		</div>
+																	</div>
+																	<div class="col-md-2 col-sm-2 col-xs-12">
+																		<div class="naoTooltip-wrap">
+																			<span>
+																				<i class="fa fa-question-circle" style="font-size:24px;color:white">
+																				</i>
+																			</span>
+																			<div class="naoTooltip nt-bottom nt-small">
+																				<p> Allows you to Enable or Disable the HV_Enable.  </p>
+																				<hr>
+																				<ul> <li> Enable : </li> </ul>
+																				<p> This Control is allowed to Enable the HV_Enable.  </p>
+																				</p>
+																				<hr>
+																				<ul> <li> Disable : </li> </ul>
+																				<p> This Control is allowed to Disable the HV_Enable.  </p>
+																			</div>
+																		</div>
+																	  </div>
+														                       </div>
+															<!-- // Alsamixer controls --!>
+																<!-- // Save Alsamixer options --!>
+			<div class = "display">
+				<div class="col-md-12 col-sm-12 col-xs-12 left-label">
+					<div class="panel-body">
+						<label>Please click on save changes button to implement the Alsa Mixer control changes done</label>
+					</div>
+				</div>
+			</div>
+																<!-- // Save Alsamixer options --!>
+															</div>
+														</div>
+													</div>
+<!-- // Alsa Mixer end --!>
+
+
+
+
+												</div>
 										</div>
 									</div>
 								</div>
@@ -618,7 +938,7 @@
 												</div>
 												<div class="col-md-12 col-sm-12 col-xs-12 block_btns">
 													<div class="col-md-10 col-sm-4 col-xs-12">
-														<input class="range-example-input-2" id="range" type="text" min="0" max="5000" value="{{$rangeVal}}" name="points" step="1" />
+														<input class="range-example-input-2" id="swap-size-range"  type="text" min="0" max="5000" value="{{$rangeVal}}" name="points" step="1" />
 														<input type = "hidden" id = "chag_sort" val = "" name = "chag_sort">
 													</div>
 													<div class="col-md-2 col-sm-4 col-xs-12">
@@ -842,33 +1162,190 @@
 	$ipGateway = preg_replace('/\s+/', '', $ipGateway);
 	$ipMask = preg_replace('/\s+/', '', $ipMask);
 	$ipDns = preg_replace('/\s+/', '', $ipDns);
+	$Master = trim($Master);
+	$Digital = trim($Digital);
+	$pcm_de_emphasis_filter = trim($pcm_de_emphasis_filter);
+	$pcm_filter_speed = trim($pcm_filter_speed);
+	$pcm_high_pass_filter = trim($pcm_high_pass_filter);
+	$pcm_nonoversample = trim($pcm_nonoversample);
+	$pcm_phase_compensation = trim($pcm_phase_compensation);
+	$hv_enable = trim($hv_enable);
 ?>
 <script>
 	$(document).ready(function() {
 		$('.naoTooltip-wrap').naoTooltip();
-		$(".range-example-input-2").asRange({
-	        range: false,
-	        limit: false,
-	      //   onChange:function() {
-	      //   	$('#overlay').show();
-	    		// var token= $('#token').val();
-	    		// var val = $('.asRange-tip').text();
-	      //      	$.ajax({
-	      //      		method:'Post',
-	      //      		data:{_token:token,val:val},
-	      //      		url:"{{ url('/user/swapFileSize') }}",
-	      //      		success:function(resp){
-	      //      			$('#overlay').hide();
-	      //      			$('#alertFile').css('display','block');
-	      //      		}
-	      //      });
-	      //   },
-	      	onChange:function() {
-	      		$(".display").css('display','block');
-		      	var sort2 = $('.asRange-tip').text();
-		      	$('#chag_sort').val(sort2);
-	      	},
-	    });
+
+		var Master = "<?php echo $Master; ?>";
+		$('#master_chng_val').val(Master);
+
+		var Digital = "<?php echo $Digital; ?>";
+		$('#digital_chng_val').val(Digital);
+
+		var pcm_de_emphasis_filter = "<?php echo $pcm_de_emphasis_filter; ?>";
+		if(pcm_de_emphasis_filter == 'off') {
+			$('#pcm_de_emphasis').prop('checked',true);
+			$('#pcm_de_emphasis_val').val('off');
+		}else{
+			$('#pcm_de_emphasis').prop('checked',false);
+			$('#pcm_de_emphasis_val').val('on');
+		}
+
+		var pcm_filter_speed = "<?php echo $pcm_filter_speed; ?>";
+		if(pcm_filter_speed == "'Slow'") {
+			$('#pcm_filter_speed').prop('checked',true);
+			$('#pcm_filter_speed_val').val('Slow');
+		}else{
+			$('#pcm_filter_speed').prop('checked',false);
+			$('#pcm_filter_speed_val').val('Fast');
+		}
+
+		var pcm_high_pass_filter = "<?php echo $pcm_high_pass_filter; ?>";
+		if(pcm_high_pass_filter == 'off') {
+			$('#pcm_high_pass_filter').prop('checked',true);
+			$('#pcm_high_pass_filter_val').val('off');
+		}else{
+			$('#pcm_high_pass_filter').prop('checked',false);
+			$('#pcm_high_pass_filter_val').val('on');
+		}
+
+		var pcm_nonoversample = "<?php echo $pcm_nonoversample; ?>";
+		if(pcm_nonoversample == 'off') {
+			$('#pcm_nonoversample').prop('checked',true);
+			$('#pcm_nonoversample_val').val('off');
+		}else{
+			$('#pcm_nonoversample').prop('checked',false);
+			$('#pcm_nonoversample_val').val('on');
+		}
+
+		var pcm_phase_compensation = "<?php echo $pcm_phase_compensation; ?>";
+		if(pcm_phase_compensation == 'off') {
+			$('#pcm_phase_compensation').prop('checked',true);
+			$('#pcm_phase_compensation_val').val('off');
+		}else{
+			$('#pcm_phase_compensation').prop('checked',false);
+			$('#pcm_phase_compensation_val').val('on');
+		}
+
+		var hv_enable = "<?php echo $hv_enable; ?>";
+		if(hv_enable == 'off') {
+			$('#hv_enable').prop('checked',true);
+			$('#hv_enable_val').val('off');
+		}else{
+			$('#hv_enable').prop('checked',false);
+			$('#hv_enable_val').val('on');
+		}
+		
+
+//		$(".range-example-input-2").asRange({
+		$("#swap-size-range").asRange({
+			range: false,
+			limit: false,
+		      //   onChange:function() {
+		      //   	$('#overlay').show();
+				// var token= $('#token').val();
+				// var val = $('.asRange-tip').text();
+		      //      	$.ajax({
+		      //      		method:'Post',
+		      //      		data:{_token:token,val:val},
+		      //      		url:"{{ url('/user/swapFileSize') }}",
+		      //      		success:function(resp){
+		      //      			$('#overlay').hide();
+		      //      			$('#alertFile').css('display','block');
+		      //      		}
+		      //      });
+		      //   },
+			onChange:function(e) {
+				$(".display").css('display','block');
+			        var sort2 = this.value;
+	                        $('#chag_sort').val(sort2);
+			},
+	         });
+
+		$("#master-range").asRange({
+			range: false,
+			limit: false,
+			onChange:function(e) {
+				$(".display").css('display','block');
+			        var master_val = this.value;
+	                        $('#master_chng_val').val(master_val);
+			},
+	         });
+		$("#digital-range").asRange({
+			range: false,
+			limit: false,
+			onChange:function(e) {
+				$(".display").css('display','block');
+			        var digital_val = this.value;
+	                        $('#digital_chng_val').val(digital_val);
+			},
+	         });
+
+
+		$("#pcm_de_emphasis").click(function () {
+		    $(".display").css('display','block');
+		    if ($("#pcm_de_emphasis").is(':checked')) {
+		            $(this).prop("checked", true);
+			    $("#pcm_de_emphasis_val").val('off');   
+		    } else {
+			    $(this).prop("checked", false);
+			    $("#pcm_de_emphasis_val").val('on');   
+		    }
+		});
+
+		$("#pcm_filter_speed").click(function () {
+		    $(".display").css('display','block');
+		    if ($("#pcm_filter_speed").is(':checked')) {
+		            $(this).prop("checked", true);
+			    $("#pcm_filter_speed_val").val('Slow');   
+		    } else {
+			    $(this).prop("checked", false);
+			    $("#pcm_filter_speed_val").val('Fast');   
+		    }
+		});
+
+		$("#pcm_high_pass_filter").click(function () {
+		    $(".display").css('display','block');
+		    if ($("#pcm_high_pass_filter").is(':checked')) {
+		            $(this).prop("checked", true);
+			    $("#pcm_high_pass_filter_val").val('off');   
+		    } else {
+			    $(this).prop("checked", false);
+			    $("#pcm_high_pass_filter_val").val('on');   
+		    }
+		});
+
+		$("#pcm_nonoversample").click(function () {
+		    $(".display").css('display','block');
+		    if ($("#pcm_nonoversample").is(':checked')) {
+		            $(this).prop("checked", true);
+			    $("#pcm_nonoversample_val").val('off');   
+		    } else {
+			    $(this).prop("checked", false);
+			    $("#pcm_nonoversample_val").val('on');   
+		    }
+		});
+
+		$("#pcm_phase_compensation").click(function () {
+		    $(".display").css('display','block');
+		    if ($("#pcm_phase_compensation").is(':checked')) {
+		            $(this).prop("checked", true);
+			    $("#pcm_phase_compensation_val").val('off');   
+		    } else {
+			    $(this).prop("checked", false);
+			    $("#pcm_phase_compensation_val").val('on');   
+		    }
+		});
+		$("#hv_enable").click(function () {
+		    $(".display").css('display','block');
+		    if ($("#hv_enable").is(':checked')) {
+		            $(this).prop("checked", true);
+			    $("#hv_enable_val").val('off');   
+		    } else {
+			    $(this).prop("checked", false);
+			    $("#hv_enable_val").val('on');   
+		    }
+		});
+
 
 	    function getVal(val){
 	        window.location.href="?selected="+val
@@ -889,14 +1366,13 @@
 		        messages: {
 		            host: "Please fill the hostname"
 		        },
-
 		        submitHandler: function(form){
 		        	$('#overlay').show();
 		        	form.submit();
 		        }
 			})
 		});
-
+	    
 		$('#dhstc').on('change', function() {
 			var selectoption = '<?php echo $selectoption?>';
 			var newSelectOption = this.value ;

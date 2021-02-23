@@ -403,6 +403,63 @@ class UserController extends Controller {
 	$current_date = date("M d, Y");
 	$current_time = date("h:i a");
 	$soundCard = $ssh->exec("TERM=linux sed -n '/^CONFIG_SOUNDCARD=/{s/^[^=]*=//p;q}' /boot/dietpi.txt");
+	$amixerCtrlList = (array) null;
+	if(trim($soundCard) == "allo-boss2-dac-audio" ) {
+		$list = $ssh->exec("TERM=linux sudo amixer -c Boss2 | grep \"Simple mixer control\"  | cut -f1 -d, | cut -f2 -d\' ");
+		$ctrlList = explode("\n", $list);
+		$amixerCtrlList = array_filter($ctrlList);
+	}
+	$Master = '';
+	$Digital = '';
+	$pcm_de_emphasis_filter= '';
+	$pcm_filter_speed = '';
+	$pcm_high_pass_filter= '';
+	$pcm_nonoversample= '';
+	$pcm_phase_compensation= '';
+	$hv_enable= '';
+	if(trim($soundCard) == "allo-boss2-dac-audio" ) {
+		if (in_array("Master", $amixerCtrlList)) {
+			//error_log("master is thr ",0);
+			$Master = $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'Master' | grep 'Front Left:' | cut -f1  -d% | cut -f2 -d[");
+		}
+		if (in_array("Digital", $amixerCtrlList)) {
+			//error_log("Digital is thr ",0);
+			$Digital = $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'Digital' | grep 'Front Left:' | cut -f1  -d% | cut -f2 -d[");
+		}
+		if (in_array("PCM De-emphasis Filter", $amixerCtrlList)) {
+			//error_log("PCM De-emphasis Filter is thr ",0);
+			$pcm_de_emphasis_filter= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM De-emphasis Filter' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+		if (in_array("PCM Filter Speed", $amixerCtrlList)) {
+			//error_log("PCM Filter Speed is thr ",0);
+			$pcm_filter_speed = $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM Filter Speed' | grep 'Item0:' | cut -f2 -d:");
+		}
+		if (in_array("PCM High-pass Filter", $amixerCtrlList)) {
+			//error_log(" PCM High-pass Filter is thr ",0);
+			$pcm_high_pass_filter= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM High-pass Filter' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+		if (in_array("PCM Nonoversample Emulate", $amixerCtrlList)) {
+			//error_log("PCM Nonoversample Emulate is thr ",0);
+			$pcm_nonoversample= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM Nonoversample Emulate' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+		if (in_array("PCM Phase Compensation", $amixerCtrlList)) {
+			//error_log("PCM Phase Compensation is thr ",0);
+			$pcm_phase_compensation= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'PCM Phase Compensation' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+		if (in_array("HV_Enable", $amixerCtrlList)) {
+			//error_log("HV_Enable is thr ",0);
+			$hv_enable= $ssh->exec("TERM=linux sudo amixer -c Boss2  get 'HV_Enable' | grep 'Mono:' | cut -f1 -d] | cut -f2 -d[");
+		}
+	#	error_log(" this is from userControl - system settings----",0);
+	#	error_log("Master-- $Master ",0);
+	#	error_log("Digital-- $Digital ",0);
+	#	error_log("PCM de emphasis-- $pcm_de_emphasis_filter ",0);
+	#	error_log("PCM filter speed -- $pcm_filter_speed ",0);
+	#	error_log("PCM High pass filter -- $pcm_high_pass_filter ",0);
+	#	error_log("PCM nonoversample -- $pcm_nonoversample ",0);
+	#	error_log("PCM phase compensation -- $pcm_phase_compensation ",0);
+	#	error_log("HV-enable -- $hv_enable ",0);
+	}
 	$hostName = $ssh->exec("TERM=linux cat /etc/hostname");
 	$ipGateway = $ssh->exec("TERM=linux ip r | mawk '/default/{print $3;exit}'");
 	$ipMask = '255.255.255.0';
@@ -415,10 +472,7 @@ class UserController extends Controller {
 	$HW_MODEL = $ssh->exec("TERM=linux; . /boot/dietpi/.hw_model; echo \$G_HW_MODEL");
 	$rangeVal = $ssh->exec("TERM=linux sed -n '/^AUTO_SETUP_SWAPFILE_SIZE=/{s/^[^=]*=//p;q}' /boot/dietpi.txt");
 
-	return view('frontend.system_settings')->with(['ipAddress' => $ipaddress, 'soundCard' => $soundCard,
-	    'hostName' => $hostName,'ipGateway' => $ipGateway, 'ipMask' => $ipMask, 'ipDns' => $ipDns,
-	    'current_date' => $current_date,'current_time' => $current_time, 'selectoption' => $selected,
-	    'updateDietPiStatus' => $updateDietPiStatus, 'currentversionDietPi' => $currentversionDietPi,'cpuGovernor' => $cpuGovernor,'HW_MODEL' => $HW_MODEL,'rangeVal' => $rangeVal]);
+	return view('frontend.system_settings')->with(['ipAddress' => $ipaddress, 'soundCard' => $soundCard, 'amixerCtrlList' => $amixerCtrlList, 'Master' => $Master, 'Digital' => $Digital, 'pcm_de_emphasis_filter' => $pcm_de_emphasis_filter, 'pcm_filter_speed' => $pcm_filter_speed, 'pcm_high_pass_filter' => $pcm_high_pass_filter, 'pcm_nonoversample' => $pcm_nonoversample, 'pcm_phase_compensation' => $pcm_phase_compensation, 'hv_enable' => $hv_enable, 'hostName' => $hostName,'ipGateway' => $ipGateway, 'ipMask' => $ipMask, 'ipDns' => $ipDns, 'current_date' => $current_date,'current_time' => $current_time, 'selectoption' => $selected, 'updateDietPiStatus' => $updateDietPiStatus, 'currentversionDietPi' => $currentversionDietPi,'cpuGovernor' => $cpuGovernor,'HW_MODEL' => $HW_MODEL,'rangeVal' => $rangeVal]);
     }
 
     public function changeSystemSettings(Request $request) {
@@ -435,9 +489,61 @@ class UserController extends Controller {
 	$chag_sort = $request->chag_sort;
 	$soundcard = $request->soundcard;
 	$cpuGovernor = $request->cpuGovernor;
+	$master = $request->master_chng_val;
+	$digital = $request->digital_chng_val;
+	$pcm_de_emphasis_filter = $request->pcm_de_emphasis_val;
+	$pcm_filter_speed = $request->pcm_filter_speed_val;
+	$pcm_high_pass_filter = $request->pcm_high_pass_filter_val;
+	$pcm_nonoversample = $request->pcm_nonoversample_val;
+	$pcm_phase_compensation = $request->pcm_phase_compensation_val;
+	$HV_Enable  = $request->hv_enable_val;
+
+	$ssh->exec("TERM=linux G_INTERACTIVE=0 sudo /boot/dietpi/func/dietpi-set_hardware soundcard $soundcard");
+	$ssh->exec("TERM=linux G_INTERACTIVE=0 sudo /boot/dietpi/func/change_hostname $host");
+
+	$amixerCtrlList = (array) null;
+	if(trim($soundcard) == "allo-boss2-dac-audio" ) {
+		$list = $ssh->exec("TERM=linux sudo amixer -c Boss2 | grep \"Simple mixer control\"  | cut -f1 -d, | cut -f2 -d\' ");
+		$ctrlList = explode("\n", $list);
+		$amixerCtrlList = array_filter($ctrlList);
+	}
+
 	if(isset($host) && !empty($host)) {
-		$ssh->exec("TERM=linux G_INTERACTIVE=0 sudo /boot/dietpi/func/dietpi-set_hardware soundcard $soundcard");
-		$ssh->exec("TERM=linux G_INTERACTIVE=0 sudo /boot/dietpi/func/change_hostname $host");
+		if( $soundcard == 'allo-boss2-dac-audio'){
+			if (in_array("Master", $amixerCtrlList)) {
+				//error_log(" can set master is thr ",0);
+				$ssh->exec("TERM=linux sudo amixer -c Boss2 -q set 'Master' '$master%'");
+			}
+			if (in_array("Digital", $amixerCtrlList)) {
+				//error_log(" can set digital is thr ",0);
+				$ssh->exec("TERM=linux sudo amixer -c Boss2 -q set 'Digital' '$digital%'");
+			}
+			if (in_array("PCM De-emphasis Filter", $amixerCtrlList)) {
+				//error_log(" can set PCM De-emphasis Filter is thr ",0);
+				$ssh->exec("TERM=linux sudo amixer -M -c Boss2 -q set 'PCM De-emphasis Filter' '$pcm_de_emphasis_filter'");
+			}
+			if (in_array("PCM Filter Speed", $amixerCtrlList)) {
+				//error_log(" can set PCM Filter Speed is thr ",0);
+				$ssh->exec("TERM=linux sudo amixer -M -c Boss2 -q set 'PCM Filter Speed' '$pcm_filter_speed'");
+			}
+			if (in_array("PCM High-pass Filter", $amixerCtrlList)) {
+				//error_log(" can set PCM High-pass Filter is thr ",0);
+				$ssh->exec("TERM=linux sudo amixer -M -c Boss2 -q set  'PCM High-pass Filter' '$pcm_high_pass_filter'");
+			}
+			if (in_array("PCM Nonoversample Emulate", $amixerCtrlList)) {
+				//error_log(" can set PCM Nonoversample Emulate is thr ",0);
+				$ssh->exec("TERM=linux sudo amixer -M -c Boss2 -q set  'PCM Nonoversample Emulate' '$pcm_nonoversample'");
+			}
+			if (in_array("PCM Phase Compensation", $amixerCtrlList)) {
+				//error_log(" can set PCM Phase Compensation is thr ",0);
+				$ssh->exec("TERM=linux sudo amixer -M -c Boss2 -q set  'PCM Phase Compensation' '$pcm_phase_compensation'");
+			}
+			if (in_array("HV_Enable", $amixerCtrlList)) {
+				//error_log(" can set HV_Enable is thr ",0);
+				$ssh->exec("TERM=linux sudo amixer -M -c Boss2 -q set  'HV_Enable' '$HV_Enable'");
+			}
+			$ssh->exec("TERM=linux sudo alsactl store");
+		}
 		$ssh->exec("TERM=linux G_INTERACTIVE=0 sudo /boot/dietpi/func/dietpi-set_swapfile $chag_sort");
 		$ssh->exec("TERM=linux; sudo sed -i '/CONFIG_CPU_GOVERNOR=/c\CONFIG_CPU_GOVERNOR=$cpuGovernor' /boot/dietpi.txt; G_INTERACTIVE=0 sudo /boot/dietpi/func/dietpi-set_cpu");
 		if($ip=='dhcp') {

@@ -1,0 +1,21 @@
+v13.2 (2020-03-31)
+- Updated app/Http/Controllers/UserController.php|AccountController.php to match DietPi v6.29 API
+- Updated app/Http/Controllers/UserController.php to remove some non-required sudo calls and enhance coding
+- Updated resources/views/partials/header.blade.php to match DietPi v6.29 API
+- Updated resources/views/scripts/scripts.sh to match DietPi v6.29 API
+- Removed README.md which did not have any content
+
+v13.1 (2020-01-01)
+- Added CHANGELOG.txt
+- Updated apc.php to latest commit (3ef350e)
+- Removed index.html, which is the default Apache2 index page, since we allow to run Allo web UI on other web servers as well
+- Updated shell calls in app/Http/Controllers/UserController.php|AccountController.php to match current DietPi v6.27:
+	G_USER_INPUTS => G_INTERACTIVE
+	dietpi-set_dphys-swapfile => dietpi-set_swapfile
+	Use sudo where required and avoid it where not required
+	Set G_* variables only where DietPi scripts are invoked
+	Prefer "systemctl disable --now" over "sytemctl stop" to remove possible obsolete systemd calls on boot
+	Prefer mawk over sed/awk/grep, where applicable, for performance reasons
+	Further performance enhancements
+- Updated resources/views/scripts/scripts.sh with new methods
+- Updated RPi sound card list in resources/views/frontend/system_settings.blade.php to match DietPi v6.27

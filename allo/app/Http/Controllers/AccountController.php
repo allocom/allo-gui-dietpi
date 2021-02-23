@@ -1,0 +1,138 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Redirect;
+use App\User;
+use Auth;
+use App\Mail\ResetPassword;
+use Illuminate\Http\Request;
+
+class AccountController extends Controller {
+
+    public function __construct() {
+	$this->middleware('auth');
+    }
+
+    public function Index() {
+        // echo "<pre>";print_r('hi');die;
+        include(app_path() . "/phpseclib/Net/SSH2.php");
+	$ssh = new \phpseclib\Net\SSH2('localhost');
+	$ssh->login('allo', 'allo') or die("Login failed");
+
+        $current_date = date("M d, Y");
+        $current_time = date("h:i a");
+        $ipaddress = $ssh->exec("TERM=linux ip a s eth0 | grep -m1 '^[[:blank:]]*inet ' | mawk '{print $2}' | sed 's|/.*$||'");
+        $hostName = $ssh->exec("TERM=linux sudo cat /etc/hostname");
+        $soundCard = $ssh->exec("TERM=linux sed -n '/^CONFIG_SOUNDCARD=/{s/^[^=]*=//p;q}' /boot/dietpi.txt");
+        $mpdstatus = $ssh->exec("TERM=linux sudo systemctl is-active mpd | grep -cim1 '^active'");
+        if ($mpdstatus == 0) {
+		$mpd_status = 'Inactive';
+        } elseif ($mpdstatus == 1) {
+		$mpd_status = 'Active';
+        }
+	$mpdNativeOutput = $ssh->exec("TERM=linux grep -cim1 '^#format ' /etc/mpd.conf");
+	if ($mpdNativeOutput == 1) {
+		$outputFrequencies = 'Native';
+		$bitDepth = 'Native';
+	} else {
+		$outputFrequencies = $ssh->exec("TERM=linux grep -m1 'format ' /etc/mpd.conf | sed 's/\"//g' | sed 's/:/ /g' | mawk '{print $2}'");
+		$outputFrequencies = "$outputFrequencies Hz";
+		$bitDepth = $ssh->exec("TERM=linux grep -m1 'format ' /etc/mpd.conf | sed 's/\"//g' | sed 's/:/ /g' | mawk '{print $3}'");
+	}
+
+        $roonStatus = $ssh->exec("TERM=linux sudo systemctl is-active roonbridge | grep -cim1 '^active'");
+        if ($roonStatus == 0) {
+            $roon_status = 'Inactive';
+        } elseif ($roonStatus == 1) {
+            $roon_status = 'Active';
+        }
+
+        $daemonStatus = $ssh->exec("TERM=linux sudo systemctl is-active networkaudiod | grep -cim1 '^active'");
+        if ($daemonStatus == 0) {
+            $daemon_status = 'Inactive';
+        } elseif ($daemonStatus == 1) {
+            $daemon_status = 'Active';
+        }
+
+        $wifi_status = $ssh->exec("TERM=linux sudo systemctl is-active hostapd | grep -cim1 '^active'");
+        if ($wifi_status == 0) {
+            $wifiStatus = 'Inactive';
+        } elseif ($wifi_status == 1) {
+            $wifiStatus = 'Active';
+        }
+
+        $currentSSID = $ssh->exec("TERM=linux sudo sed -n '/^ssid=/{s/^[^=]*=//p;q}' /etc/hostapd/hostapd.conf");
+        $currentPasskey = $ssh->exec("TERM=linux sudo sed -n '/^wpa_passphrase=/{s/^[^=]*=//p;q}' /etc/hostapd/hostapd.conf");
+
+        $shairPortStatus = $ssh->exec("TERM=linux sudo systemctl is-active shairport-sync | grep -cim1 '^active'");
+        if ($shairPortStatus == 0) {
+            $shairPortStatus = 'Inactive';
+        } elseif ($shairPortStatus == 1) {
+            $shairPortStatus = 'Active';
+        }
+        $outputFrequencies_shair = $ssh->exec("TERM=linux sudo grep -m1 'output_rate' /usr/local/etc/shairport-sync.conf | sed 's/\///g' | mawk '{print $3}' | sed 's/\;//g'");
+        $bitDepth_shair = $ssh->exec("TERM=linux sudo grep -m1 'output_format' /usr/local/etc/shairport-sync.conf | sed 's/\///g' | mawk '{print $3}' | sed 's/\;//g' | sed 's/\"//g' | sed 's/S//g'");
+
+        $cpu_temp = $ssh->exec("TERM=linux . /boot/dietpi/func/dietpi-globals; G_INTERACTIVE=0 G_OBTAIN_CPU_TEMP");
+        // $cpu_usage = $ssh->exec("TERM=linux G_INTERACTIVE=0 sudo /boot/dietpi/dietpi-cpuinfo 3");
+
+		$gmrenderStatus = $ssh->exec("TERM=linux sudo systemctl is-active gmrender | grep -cim1 '^active'");
+        if ($gmrenderStatus == 0) {
+            $gmrenderStatus = 'Inactive';
+        } elseif ($gmrenderStatus == 1) {
+            $gmrenderStatus = 'Active';
+        }
+
+		$netdataStatus = $ssh->exec("TERM=linux sudo systemctl is-active netdata | grep -cim1 '^active'");
+        if ($netdataStatus == 0) {
+            $netdataStatus = 'Inactive';
+        } elseif ($netdataStatus == 1) {
+            $netdataStatus = 'Active';
+        }
+
+		$squeezeliteStatus = $ssh->exec("TERM=linux sudo systemctl is-active squeezelite | grep -cim1 '^active'");
+        if ($squeezeliteStatus == 0) {
+            $squeezeliteStatus = 'Inactive';
+        } elseif ($squeezeliteStatus == 1) {
+            $squeezeliteStatus = 'Active';
+        }
+
+		if (file_exists('/etc/systemd/system/squeezelite.service'))
+		{
+			$bitDepth_squeezelite = (string) trim($ssh->exec("TERM=linux sudo grep -m1 '^ExecStart=' /etc/systemd/system/squeezelite.service | mawk '{print $3}' | sed 's/:/ /g' | mawk '{print $3}'"));
+		}
+		else
+		{
+			$bitDepth_squeezelite = 16;
+		}
+
+        return view('frontend.dashboard')->with(['ipAddress' => $ipaddress, 'current_date' => $current_date,
+            'current_time' => $current_time, 'ipaddress' => $ipaddress, 'hostName' => $hostName,
+            'soundCard' => $soundCard,'mpd_status'=>$mpd_status, 'outputFrequencies'=>$outputFrequencies,'bitDepth'=>$bitDepth,'roon_status'=>$roon_status,
+            'daemon_status' =>$daemon_status,'wifiStatus'=>$wifiStatus,'currentSSID'=>$currentSSID,
+            'currentPasskey'=>$currentPasskey,'shairPortStatus'=>$shairPortStatus,'cpu_temp' =>$cpu_temp,
+            'outputFrequencies_shair'=>$outputFrequencies_shair,'bitDepth_shair'=>$bitDepth_shair, 'mpdNativeOutput'=>$mpdNativeOutput, 'gmrenderStatus'=>$gmrenderStatus, 'netdataStatus'=>$netdataStatus,
+			'squeezeliteStatus'=>$squeezeliteStatus, 'bitDepth_squeezelite'=>$bitDepth_squeezelite
+			]);
+        ;
+    }
+
+    public function ssh_login(Request $request) {
+        if (!empty($request->all())) {
+            include(app_path() . "/phpseclib/Net/SSH2.php");
+            $ssh = new \phpseclib\Net\SSH2('localhost');
+            $ssh->login('allo', 'allo') or die("Login failed");
+            echo 'Hotspot Password is: ' . $ssh->exec("TERM=linux sudo sed -n '/^wpa_passphrase=/{s/^[^=]*=//p;q}' /etc/hostapd/hostapd.conf");
+            $hotspotstatus = $ssh->exec("TERM=linux; sudo systemctl unmask hostapd; sudo systemctl restart hostapd");
+            if ($hotspotstatus == 0) {
+                $hotspot_status = 'Inactive';
+            } elseif ($hotspotstatus == 1) {
+                $hotspot_status = 'Active';
+            }
+        } else {
+            return view('ssh_login');
+        }
+    }
+
+}

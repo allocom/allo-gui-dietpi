@@ -184,9 +184,9 @@ class UserController extends Controller {
 
 	$current_date = date("M d, Y");
 	$squeezeliteStatus = $ssh->exec("TERM=linux sudo systemctl is-active squeezelite | grep -cim1 '^active'");
-	if (file_exists('/etc/systemd/system/squeezelite.service')) {
-		$bitDepth = (string) trim($ssh->exec("TERM=linux grep -m1 '^ExecStart=' /etc/systemd/system/squeezelite.service | mawk '{print $3}' | sed 's/:/ /g' | mawk '{print $3}'"));
-		$DSD_NATIVE = (string) trim($ssh->exec("TERM=linux grep -m1 '^ExecStart=' /etc/systemd/system/squeezelite.service | mawk '{print $11}' | sed 's/://g'"));
+	if (file_exists('/lib/systemd/system/squeezelite.service')) {
+		$bitDepth = (string) trim($ssh->exec("TERM=linux grep -m1 '^ExecStart=' /lib/systemd/system/squeezelite.service | mawk '{print $3}' | sed 's/:/ /g' | mawk '{print $3}'"));
+		$DSD_NATIVE = (string) trim($ssh->exec("TERM=linux grep -m1 '^ExecStart=' /lib/systemd/system/squeezelite.service | mawk '{print $11}' | sed 's/://g'"));
 		if ( ! $DSD_NATIVE )
 		{
 			$DSD_NATIVE = 'disabled';
@@ -207,15 +207,15 @@ class UserController extends Controller {
 	$squeezeliteStatus = $request->squeezeliteStatus;
 	// if status to be enabled ,status = no ; if status to be disabled ,status = yes
 	if ($squeezeliteStatus == 'yes') {
-		$ssh->exec("TERM=linux sudo systemctl disable --now squeezelite; TERM=linux sudo mv /etc/systemd/system/squeezelite.service /etc/systemd/system/squeezelite.service.disable; TERM=linux sudo systemctl daemon-reload");
+		$ssh->exec("TERM=linux sudo systemctl disable --now squeezelite; TERM=linux sudo mv /lib/systemd/system/squeezelite.service /lib/systemd/system/squeezelite.service.disable; TERM=linux sudo systemctl daemon-reload");
 	} elseif ($squeezeliteStatus = 'no') {
-		$ssh->exec("TERM=linux sudo mv /etc/systemd/system/squeezelite.service.disable /etc/systemd/system/squeezelite.service");
+		$ssh->exec("TERM=linux sudo mv /lib/systemd/system/squeezelite.service.disable /lib/systemd/system/squeezelite.service");
 			$bitDepth = $request->bitDepth;
 			$DSD_NATIVE = $request->DSD_NATIVE;
 			if ( $DSD_NATIVE == 'disabled' ) {
-				$chngbitDepth = $ssh->exec('TERM=linux sudo sed -i "/^ExecStart=/c\ExecStart=/usr/bin/squeezelite -a 4096:8096:' . $bitDepth . ':0 -C 5 -n \'DietPi-Squeezelite\' -f /var/log/squeezelite.log" /etc/systemd/system/squeezelite.service;');
+				$chngbitDepth = $ssh->exec('TERM=linux sudo sed -i "/^ExecStart=/c\ExecStart=/usr/bin/squeezelite -a 4096:8096:' . $bitDepth . ':0 -C 5 -n \'DietPi-Squeezelite\' -f /var/log/squeezelite.log" /lib/systemd/system/squeezelite.service;');
 			} else {
-				$chngbitDepth = $ssh->exec('TERM=linux sudo sed -i "/^ExecStart=/c\ExecStart=/usr/bin/squeezelite -a 4096:8096:' . $bitDepth . ':0 -C 5 -n \'DietPi-Squeezelite\' -f /var/log/squeezelite.log -D :' . $DSD_NATIVE . '" /etc/systemd/system/squeezelite.service;');
+				$chngbitDepth = $ssh->exec('TERM=linux sudo sed -i "/^ExecStart=/c\ExecStart=/usr/bin/squeezelite -a 4096:8096:' . $bitDepth . ':0 -C 5 -n \'DietPi-Squeezelite\' -f /var/log/squeezelite.log -D :' . $DSD_NATIVE . '" /lib/systemd/system/squeezelite.service;');
 			}
 		$ssh->exec("TERM=linux sudo systemctl daemon-reload; TERM=linux sudo systemctl restart squeezelite");
 	}

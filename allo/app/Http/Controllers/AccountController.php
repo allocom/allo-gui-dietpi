@@ -150,9 +150,9 @@ class AccountController extends Controller {
             $squeezeliteStatus = 'Active';
         }
 
-		if (file_exists('/etc/systemd/system/squeezelite.service'))
+		if (file_exists('/lib/systemd/system/squeezelite.service'))
 		{
-			$bitDepth_squeezelite = (string) trim($ssh->exec("TERM=linux sudo grep -m1 '^ExecStart=' /etc/systemd/system/squeezelite.service | mawk '{print $3}' | sed 's/:/ /g' | mawk '{print $3}'"));
+			$bitDepth_squeezelite = (string) trim($ssh->exec("TERM=linux sudo grep -m1 '^ExecStart=' /lib/systemd/system/squeezelite.service | mawk '{print $3}' | sed 's/:/ /g' | mawk '{print $3}'"));
 		}
 		else
 		{
